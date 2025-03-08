@@ -58,13 +58,6 @@ local function teleportToRandomCoin()
             -- Adding a small Y offset to avoid being stuck in the ground
             humanoidRootPart.CFrame = CFrame.new(targetPosition + Vector3.new(0, 3, 0))
         end
-    else
-        -- Notify if the CollectCoinLocal folder doesn't exist or is empty
-        StarterGui:SetCore("SendNotification", {
-            Title = "Error",
-            Text = "No coins found to teleport to",
-            Duration = 3
-        })
     end
 end
 
@@ -80,8 +73,6 @@ toggleButton.MouseButton1Click:Connect(function()
         -- Start the teleport loop
         teleportLoop = game:GetService("RunService").Heartbeat:Connect(function()
             teleportToRandomCoin()
-            -- Add a short wait to prevent too rapid teleporting
-            wait(0.5)
         end)
     else
         -- Change button appearance
