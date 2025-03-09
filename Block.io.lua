@@ -31,7 +31,7 @@ toggleButton.MouseButton1Click:Connect(function()
     if isChangingSize then
         sizeCoroutine = coroutine.create(function()
             while isChangingSize do
-                foodHitbox.Size = Vector3.new(100, 100, 100)
+                foodHitbox.Size = Vector3.new(150, 150, 150)
                 print("Set FoodHitbox size to 100, 100, 100")
                 wait(0.1)  -- Short wait to prevent too frequent changes
             end
