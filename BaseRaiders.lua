@@ -1,42 +1,45 @@
 local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local rootPart = character:WaitForChild("HumanoidRootPart")
+local gui = Instance.new("ScreenGui")
+gui.Parent = player:WaitForChild("PlayerGui")
 
--- Create GUI
-local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = player:WaitForChild("PlayerGui")
+gui.ResetOnSpawn = false
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 200, 0, 100)
+frame.Size = UDim2.new(0, 200, 0, 150)
 frame.Position = UDim2.new(1, -210, 0, 10)
-frame.BackgroundTransparency = 0.5
-frame.Parent = screenGui
+frame.BackgroundTransparency = 0.3
+frame.Parent = gui
 
 local runButton = Instance.new("TextButton")
-runButton.Size = UDim2.new(1, 0, 0, 30)
+runButton.Size = UDim2.new(1, 0, 0, 50)
 runButton.Text = "Run Script"
 runButton.Parent = frame
 
-local cancelButton = Instance.new("TextButton")
-cancelButton.Size = UDim2.new(1, 0, 0, 30)
-cancelButton.Position = UDim2.new(0, 0, 0, 35)
-cancelButton.Text = "Cancel"
-cancelButton.Parent = frame
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(1, 0, 0, 50)
+closeButton.Position = UDim2.new(0, 0, 0, 50)
+closeButton.Text = "Close"
+closeButton.Parent = frame
 
-local toggleButton = Instance.new("TextButton")
-toggleButton.Size = UDim2.new(1, 0, 0, 30)
-toggleButton.Position = UDim2.new(0, 0, 0, 70)
-toggleButton.Text = "Added Collision: OFF"
-toggleButton.Visible = false
-toggleButton.Parent = frame
+local collisionButton = Instance.new("TextButton")
+collisionButton.Size = UDim2.new(1, 0, 0, 50)
+collisionButton.Position = UDim2.new(0, 0, 0, 100)
+collisionButton.Text = "Added Collision: OFF"
+collisionButton.Parent = frame
+collisionButton.Visible = false
 
 local truss, transparentPart
-local collisionEnabled = false
 
 local function createParts()
+    local character = player.Character
+    if not character then return end
+    
+    local root = character:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+    
     truss = Instance.new("TrussPart")
     truss.Size = Vector3.new(1, 200, 1)
-    truss.Position = Vector3.new(rootPart.Position.X, 87.4, rootPart.Position.Z)
+    truss.Position = Vector3.new(root.Position.X, 87.4, root.Position.Z)
     truss.Anchored = true
     truss.Parent = workspace
     
@@ -44,30 +47,30 @@ local function createParts()
     transparentPart.Size = Vector3.new(2048, 1.2, 2048)
     transparentPart.CFrame = CFrame.new(0, 181.6, 0)
     transparentPart.Transparency = 0.9
-    transparentPart.CanCollide = false
     transparentPart.Anchored = true
+    transparentPart.CanCollide = false
     transparentPart.Parent = workspace
     
-    runButton:Destroy()
-    cancelButton:Destroy()
+    collisionButton.Visible = true
     frame:Destroy()
-    toggleButton.Visible = true
 end
 
 local function toggleCollision()
     if transparentPart then
-        collisionEnabled = not collisionEnabled
-        transparentPart.CanCollide = collisionEnabled
-        toggleButton.Text = "Added Collision: " .. (collisionEnabled and "ON" or "OFF")
+        transparentPart.CanCollide = not transparentPart.CanCollide
+        collisionButton.Text = "Added Collision: " .. (transparentPart.CanCollide and "ON" or "OFF")
     end
 end
 
-local function cancel()
+local function cleanup()
     if truss then truss:Destroy() end
     if transparentPart then transparentPart:Destroy() end
-    screenGui:Destroy()
+    gui:Destroy()
 end
 
-runButton.MouseButton1Click:Connect(createParts)
-toggleButton.MouseButton1Click:Connect(toggleCollision)
-cancelButton.MouseButton1Click:Connect(cancel)
+runButton.MouseButton1Click:Connect(function()
+    createParts()
+end)
+
+collisionButton.MouseButton1Click:Connect(toggleCollision)
+closeButton.MouseButton1Click:Connect(cleanup)
