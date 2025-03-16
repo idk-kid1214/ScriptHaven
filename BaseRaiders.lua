@@ -52,7 +52,8 @@ local function createParts()
     transparentPart.Parent = workspace
     
     collisionButton.Visible = true
-    frame:Destroy()
+    closeButton.Visible = true
+    runButton:Destroy()
 end
 
 local function toggleCollision()
