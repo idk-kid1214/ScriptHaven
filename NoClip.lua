@@ -76,7 +76,24 @@ speedInput.FocusLost:Connect(function()
 end)
 
 -- Teleport fly
-local function startFlying()
+	local function startFlying()
+	local Players = game:GetService("Players")
+	local UserInputService = game:GetService("UserInputService")
+	local RunService = game:GetService("RunService")
+	local CoreGui = game:GetService("CoreGui")
+
+	local player = Players.LocalPlayer
+	local character = player.Character or player.CharacterAdded:Wait()
+	local hrp = character:WaitForChild("HumanoidRootPart")
+	local humanoid = character:WaitForChild("Humanoid")
+
+	local keys = { W = false, A = false, S = false, D = false }
+	local flying = false
+	local conn = nil
+	local speed = 1
+	local savedPosition = hrp.Position
+	local originalGravity = workspace.Gravity
+	
 	-- Save the current gravity and set it to 0
 	originalGravity = workspace.Gravity
 	workspace.Gravity = 0
@@ -104,6 +121,14 @@ local function startFlying()
 
 		local forward = camCF.LookVector
 		hrp.CFrame = CFrame.new(savedPosition, savedPosition + Vector3.new(forward.X, 0, forward.Z))
+		game.Players.PlayerAdded:Connect(function(player)
+		    player.CharacterAdded:Connect(function(character)
+		        character:WaitForChild("Humanoid").Died:Connect(function()
+		            player.CharacterAdded:Wait()
+		            stopFlying()
+		        end)
+		    end)
+		end)
 	end)
 end
 
