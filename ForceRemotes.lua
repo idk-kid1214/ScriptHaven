@@ -114,6 +114,63 @@ local function log(msg)
 end
 
 -- Functions
+
+local function tryBypass(remoteEvent)
+    local success, errorMessage = pcall(function()
+        if remoteEvent and remoteEvent.Parent == ReplicatedStorage then
+            remoteEvent:FireServer()
+        else
+            error("Remote event not found or is not in ReplicatedStorage")
+        end
+    end)
+
+    if not success then
+        impersonateOwner(remoteEvent)
+    else
+        print("Bypass Successful")
+    end
+end
+
+local function impersonateOwner(remoteEvent)
+    local success, errorMessage = pcall(function()
+        -- Attempt to bypass security checks, impersonate the owner
+        local owner = game.CreatorId == localPlayer.UserId
+        if owner then
+            remoteEvent:FireServer()
+        else
+            tryBypassWithOwnerImpersonation(remoteEvent)
+        end
+    end)
+
+    if not success then
+        print("Impersonation Failed: " .. errorMessage)
+    else
+        print("Impersonation Successful")
+    end
+end
+
+local function tryBypassWithOwnerImpersonation(remoteEvent)
+    local success, errorMessage = pcall(function()
+        -- Attempt to bypass and impersonate the owner simultaneously
+        local owner = game.CreatorId == localPlayer.UserId
+        if remoteEvent and remoteEvent.Parent == ReplicatedStorage then
+            if owner then
+                remoteEvent:FireServer()
+            else
+                error("Player is not the owner")
+            end
+        else
+            error("Remote event not found")
+        end
+    end)
+
+    if not success then
+        print("Bypass with Impersonation Failed: " .. errorMessage)
+    else
+        print("Bypass with Impersonation Successful")
+    end
+end
+
 local function getRemoteList()
 	local list = {}
 	for _, path in ipairs(string.split(remoteBox.Text, ",")) do
@@ -134,10 +191,6 @@ local function tryFireRemotes()
 			log("Fired: " .. remote:GetFullName())
 		end)
 	end
-end
-
-local function tryBypass()
-	log("Attempted bypass (placeholder logic)")
 end
 
 -- Buttons
