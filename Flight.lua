@@ -9,6 +9,7 @@ local hrp = character:WaitForChild("HumanoidRootPart")
 local humanoid = character:WaitForChild("Humanoid")
 
 local keys = { W = false, A = false, S = false, D = false }
+
 local flying = false
 local bv, conn = nil, nil
 
@@ -31,7 +32,7 @@ local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 180, 0, 30)
 toggleButton.Position = UDim2.new(0, 10, 0, 10)
 toggleButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-toggleButton.TextColor3 = Color3.new(1, 1, 1)
+toggleButton.TextColor3 = Color3.new(1,1,1)
 toggleButton.Text = "Fly: OFF"
 toggleButton.Parent = frame
 
@@ -39,23 +40,24 @@ local xButton = Instance.new("TextButton")
 xButton.Size = UDim2.new(0, 20, 0, 20)
 xButton.Position = UDim2.new(1, -25, 0, 5)
 xButton.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
-xButton.TextColor3 = Color3.new(1, 1, 1)
+xButton.TextColor3 = Color3.new(1,1,1)
 xButton.Text = "X"
 xButton.Parent = frame
 
+-- Input tracking
 UserInputService.InputBegan:Connect(function(input, gp)
 	if gp then return end
-	local keyName = input.KeyCode.Name
-	if keys[keyName] ~= nil then keys[keyName] = true end
+	if keys[input.KeyCode.Name] ~= nil then keys[input.KeyCode.Name] = true end
 end)
 
 UserInputService.InputEnded:Connect(function(input, gp)
-	local keyName = input.KeyCode.Name
-	if keys[keyName] ~= nil then keys[keyName] = false end
+	if keys[input.KeyCode.Name] ~= nil then keys[input.KeyCode.Name] = false end
 end)
 
+-- Fly logic
 local function startFlying()
 	humanoid.PlatformStand = true
+
 	if bv then bv:Destroy() end
 	bv = Instance.new("BodyVelocity")
 	bv.Velocity = Vector3.zero
@@ -64,6 +66,8 @@ local function startFlying()
 
 	conn = RunService.RenderStepped:Connect(function()
 		if not flying then return end
+
+		hrp.Velocity = Vector3.zero
 
 		local camCF = workspace.CurrentCamera.CFrame
 		local moveDir = Vector3.zero
@@ -80,6 +84,7 @@ local function startFlying()
 			bv.Velocity = Vector3.zero
 		end
 
+		-- Face camera direction (but level horizontal only)
 		local forward = camCF.LookVector
 		hrp.CFrame = CFrame.new(hrp.Position, hrp.Position + Vector3.new(forward.X, 0, forward.Z))
 	end)
@@ -93,6 +98,7 @@ local function stopFlying()
 	hrp.Velocity = Vector3.zero
 end
 
+-- Button behavior
 toggleButton.MouseButton1Click:Connect(function()
 	flying = not flying
 	toggleButton.Text = "Fly: " .. (flying and "ON" or "OFF")
